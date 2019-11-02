@@ -1,0 +1,52 @@
+# Importing Libraries
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier 
+from sklearn import metrics
+
+#Importing Dataset
+data=pd.read_csv("file:///C:/Users/STUDENT/Desktop/credit.csv")
+data.head()
+
+A=data.isnull().sum()
+A
+## Plotting Scatter plot
+import matplotlib.pyplot as plt
+plt.scatter(data['personal_status'],data['age'])
+
+## Splitting data into train and test
+data1= data.drop("default",axis=1)
+data1
+
+X_dummies=pd.get_dummies(data1)
+Y=data["default"]
+X_train, X_test, Y_train, Y_test = train_test_split(X_dummies, Y, test_size=0.3, random_state=1)
+
+
+
+## Building model
+# Create Decision Tree classifer object
+clf = DecisionTreeClassifier()
+
+# Train Decision Tree Classifer
+clf = clf.fit(X_train,Y_train)
+
+#Predict the response for test dataset
+y_pred = clf.predict(X_test)
+
+# Model Accuracy, how often is the classifier correct?
+print("Accuracy:",metrics.accuracy_score(Y_test, y_pred))
+
+from sklearn.tree import export_graphviz
+from sklearn.externals.six import StringIO  
+from IPython.display import Image
+import pydotplus
+
+dot_data = StringIO()
+export_graphviz(clf, out_file=dot_data,  
+                filled=True, rounded=True,
+                special_characters=True,class_names=['0','1'])
+graph = pydotplus.graph_from_dot_data(dot_data.getvalue())  
+graph.write_png('credit.png')
+Image(graph.create_png())
